@@ -1,0 +1,367 @@
+#include<iostream>
+#include<stack>
+#include<queue>
+using namespace std;
+
+class BTNode
+{
+private:
+	int data;
+	BTNode* LC;
+	BTNode* RC;
+public:
+	BTNode();
+	BTNode(int);
+
+	void setdata(int);
+	void setLeft(BTNode*);
+	void setRight(BTNode*);
+
+	int getdata();
+	BTNode* getLeft();
+	BTNode* getRight();
+};
+BTNode::BTNode()
+{
+	data = NULL;
+	LC = NULL;
+	RC = NULL;
+}
+BTNode::BTNode(int d)
+{
+	data = d;
+	LC = NULL;
+	RC = NULL;
+}
+void BTNode::setdata(int d)
+{
+	data = d;
+}
+void BTNode::setLeft(BTNode* left)
+{
+	LC = left;
+}
+void BTNode::setRight(BTNode* right)
+{
+	RC = right;
+}
+int BTNode::getdata()
+{
+	return data;
+}
+BTNode* BTNode::getLeft()
+{
+	return LC;
+}
+BTNode* BTNode::getRight()
+{
+	return RC;
+}
+
+//BINARY TREE
+
+class BTree
+{
+private:
+	BTNode* root;
+	int rMaxDH(BTNode*);
+	void rLevelOrder(BTNode*, int);
+	void rPreOrder(BTNode*);
+	void rPostOrder(BTNode*);
+	void rInOrder(BTNode*);
+public:
+	BTree();
+	BTree(BTNode*);
+
+	void BuildTree(int* arr, int size);
+
+	void IterativePreOrder();
+	void IterativePostOrder();
+	void IterativeInOrder();
+	void IterativeLevelOrder();
+
+	int MaxDH();
+
+	//Recursive
+	void PreOrder();
+	void PostOrder();
+	void InOrder();
+	void LevelOrder();
+};
+BTree::BTree()
+{
+	root = NULL;
+}
+BTree::BTree(BTNode* r)
+{
+	root = r;
+}
+
+//BUILD TREE
+void BTree::BuildTree(int* arr, int size)
+{
+	BTNode** Narr;
+	Narr = new BTNode * [size];
+	BTNode* temp;
+	for (int i = 1; i < size; i++)
+	{
+		if (arr[i] != 0)
+		{
+			Narr[i] = new BTNode(arr[i]);
+		}
+		else
+			Narr[i] = 0;
+	}
+	if (size > 1)
+		root = Narr[1];
+
+	for (int i = 1; i <= (size / 2); i++)
+	{
+		temp = Narr[i];
+
+		if (temp)
+		{
+			if ((2 * i) < size && Narr[2 * i])
+				temp->setLeft(Narr[2 * i]);
+
+			if (((2 * i) + 1) < size && Narr[(2 * i) + 1])
+				temp->setRight(Narr[(2 * i) + 1]);
+		}
+	}
+	delete[] Narr;
+
+}
+
+// TRAVERSALS ITERATIVELY
+//Pre Order
+void BTree::IterativePreOrder()
+{
+	cout << "\n Printing Binary Tree using Preorder (It)..." << endl;
+	stack<BTNode*> s;
+	s.push(root);
+	BTNode* temp;
+
+	while (!s.empty())
+	{
+		temp = s.top();
+		cout << " " << temp->getdata();
+		s.pop();
+
+		if (temp->getRight())
+			s.push(temp->getRight());
+
+		if (temp->getLeft())
+			s.push(temp->getLeft());
+
+		if (!s.empty())
+			cout << " ->";
+	}
+	cout << endl;
+}
+//Post Order
+void BTree::IterativePostOrder()
+{
+	cout << "\n Printing Binary Tree using Postorder (It)..." << endl;
+	stack<BTNode*> s;
+	s.push(root);
+	BTNode* temp;
+
+	stack<int> s1;
+
+	while (!s.empty())
+	{
+		temp = s.top();
+		s.pop();
+		s1.push(temp->getdata());
+
+		if (temp->getLeft())
+			s.push(temp->getLeft());
+
+		if (temp->getRight())
+			s.push(temp->getRight());
+	}
+	while (!s1.empty())
+	{
+		cout << " " << s1.top();
+		s1.pop();
+
+		if (!s1.empty())
+			cout << " ->";
+	}
+	cout << endl;
+}
+
+//In Order
+void BTree::IterativeInOrder()
+{
+	cout << "\n Printing Binary tree using Inorder (It)..." << endl;
+	stack<BTNode*> s;
+	BTNode* temp = root;
+
+	while (!s.empty() || temp)
+	{
+		while (temp)
+		{
+			s.push(temp);
+			temp = temp->getLeft();
+		}
+		temp = s.top();
+		s.pop();
+		cout << " " << temp->getdata();
+
+		temp = temp->getRight();
+		
+		if (!s.empty() || temp)
+			cout << " ->";
+	}
+	cout << endl;
+}
+
+//Level Order
+void BTree::IterativeLevelOrder()
+{
+	cout << "\n Printing Binary Tree using Level order (It)..." << endl;
+	queue<BTNode*> q;
+	q.push(root);
+	BTNode* temp;
+
+	while (!q.empty())
+	{
+		temp = q.front();
+		cout << " " << temp->getdata();
+		q.pop();
+
+		if (temp->getLeft())
+			q.push(temp->getLeft());
+
+		if (temp->getRight())
+			q.push(temp->getRight());
+
+		if (q.size() != 0)
+			cout << " ->";
+	}
+	cout << endl;
+}
+
+//MaxDH
+int BTree::MaxDH()
+{
+	int d = rMaxDH(root);
+	return d;
+}
+int BTree::rMaxDH(BTNode* temp)
+{
+	if (temp)
+	{
+		int right, left;
+
+		left = rMaxDH(temp->getLeft());
+		right = rMaxDH(temp->getRight());
+
+		if (left >= right)
+			return (left + 1);
+		else
+			return (right + 1);
+	}
+	else
+		return -1;
+}
+
+//TRAVERSALS RECURSIVELY
+//PRE
+void BTree::PreOrder()
+{
+	cout << " Printing Binary tree using Preorder(R)..." << endl;
+	rPreOrder(root);
+	cout << endl;
+}
+void BTree::rPreOrder(BTNode* temp)
+{
+	if (temp)
+	{
+		cout << " " << temp->getdata() << " ";
+		rPreOrder(temp->getLeft());
+		rPreOrder(temp->getRight());
+	}
+}
+
+//POST
+void BTree::PostOrder()
+{
+	cout << " Printing Binary tree using Postorder(R)..." << endl;
+	rPostOrder(root);
+	cout << endl;
+}
+void BTree::rPostOrder(BTNode* temp)
+{
+	if (temp)
+	{
+		rPostOrder(temp->getLeft());
+		rPostOrder(temp->getRight());
+		cout << " " << temp->getdata() << " ";
+	}
+}
+
+//IN
+void BTree::InOrder()
+{
+	cout << " Printing Binary tree using Inorder(R)..." << endl;
+	rInOrder(root);
+	cout << endl;
+}
+void BTree::rInOrder(BTNode* temp)
+{
+	if (temp)
+	{
+		rInOrder(temp->getLeft());
+		cout << " " << temp->getdata() << " ";
+		rInOrder(temp->getRight());
+	}
+}
+
+//LEVEL
+void BTree::LevelOrder()
+{
+	cout << " Printing Binary tree using Level order(R)..." << endl;
+	int l = MaxDH();
+	for (int i = 1; i <= (l + 1); i++)
+		rLevelOrder(root, i);
+
+	cout << endl;
+}
+void BTree::rLevelOrder(BTNode* temp, int Level)
+{
+	if (Level == 1 && temp)
+		cout << " " << temp->getdata() << " ";
+
+	else if (Level != 1 && temp)
+	{
+		rLevelOrder(temp->getLeft(), Level - 1);
+		rLevelOrder(temp->getRight(), Level - 1);
+	}
+}
+
+int main()
+{
+	int arr[10] = { 0,1,2,3,4,5,0,7,9,0 };
+	
+	BTree* b;
+	b = new BTree();
+
+	b->BuildTree(arr, 10);
+	b->IterativeLevelOrder();
+	b->IterativeInOrder();
+	b->IterativePreOrder();
+	b->IterativePostOrder();
+
+	cout << "\n Depth of Binary tree: " << b->MaxDH();
+	cout << "\n Height of Binary tree: " << b->MaxDH() << endl;
+
+	cout << endl;
+	b->LevelOrder();
+	b->InOrder();
+	b->PreOrder();
+	b->PostOrder();
+
+	return 0;
+}
